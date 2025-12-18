@@ -107,9 +107,6 @@ Code quality and test reports are generated using Maven plugins and are availabl
 
 target/site/
 
-yaml
-Copy code
-
 Key reports include:
 
 - JaCoCo coverage report
