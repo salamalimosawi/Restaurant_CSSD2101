@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PaymentService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.service</a> &gt; <span class="el_source">PaymentService.java</span></div><h1>PaymentService.java</h1><pre class="source lang-java linenums">package com.university.restaurant.service;
+
+import com.university.restaurant.chain.payment.PaymentPermissionChain;
+import com.university.restaurant.model.order.Order;
+import com.university.restaurant.model.order.OrderStatus;
+import com.university.restaurant.model.payment.Payment;
+import com.university.restaurant.model.payment.PaymentMethod;
+import com.university.restaurant.model.staff.StaffRole;
+import com.university.restaurant.port.PaymentServicePort;
+import com.university.restaurant.repository.OrderRepository;
+import com.university.restaurant.repository.PaymentRepository;
+import com.university.restaurant.repository.RestaurantAuditEntry;
+import com.university.restaurant.repository.RestaurantAuditLogRepository;
+
+import java.util.UUID;
+
+/**
+ * &lt;p&gt;
+ * Service-layer implementation of {@link PaymentServicePort}, responsible for
+ * completing payments and retrieving payment records within the restaurant
+ * management system.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This class enforces domain rules (e.g., only SERVED orders may be paid),
+ * ensures role-based permissions via {@link PaymentPermissionChain},
+ * persists changes through the provided repositories, and records all
+ * operations in the audit log.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The service adheres to Hexagonal Architecture principles by depending only
+ * on the {@link PaymentServicePort} abstraction and repository interfaces,
+ * not on infrastructure details.
+ * &lt;/p&gt;
+ */
+public class PaymentService implements PaymentServicePort {
+
+    private final OrderRepository orders;
+    private final PaymentRepository payments;
+    private final RestaurantAuditLogRepository audits;
+<span class="fc" id="L42">    private final PaymentPermissionChain permissions = new PaymentPermissionChain();</span>
+
+    /**
+     * Constructs the {@code PaymentService} with the required repository
+     * dependencies and audit log.
+     *
+     * @param orders   repository for retrieving and saving orders
+     * @param payments repository for persisting payment records
+     * @param audits   repository for writing audit trail entries
+     */
+    public PaymentService(OrderRepository orders,
+                          PaymentRepository payments,
+<span class="fc" id="L54">                          RestaurantAuditLogRepository audits) {</span>
+<span class="fc" id="L55">        this.orders = orders;</span>
+<span class="fc" id="L56">        this.payments = payments;</span>
+<span class="fc" id="L57">        this.audits = audits;</span>
+<span class="fc" id="L58">    }</span>
+
+    /**
+     * {@inheritDoc}
+     *
+     * &lt;p&gt;
+     * This implementation:
+     * &lt;/p&gt;
+     * &lt;ul&gt;
+     *     &lt;li&gt;Validates role-based permissions&lt;/li&gt;
+     *     &lt;li&gt;Loads the target order&lt;/li&gt;
+     *     &lt;li&gt;Ensures the order is eligible for payment (must be SERVED)&lt;/li&gt;
+     *     &lt;li&gt;Applies domain logic to mark the order as PAID&lt;/li&gt;
+     *     &lt;li&gt;Saves the updated order&lt;/li&gt;
+     *     &lt;li&gt;Persists the generated {@link Payment}&lt;/li&gt;
+     *     &lt;li&gt;Writes an audit entry&lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+    @Override
+    public Payment completePayment(StaffRole actor, String orderId, PaymentMethod method) {
+
+        // Permission check
+<span class="fc" id="L80">        permissions.check(actor, &quot;complete a payment&quot;);</span>
+
+<span class="fc" id="L82">        UUID id = UUID.fromString(orderId);</span>
+
+        // 1. Load order
+<span class="fc" id="L85">        Order order = orders.findById(id)</span>
+<span class="fc" id="L86">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Order not found: &quot; + orderId));</span>
+
+        // 2. Domain rule: payment allowed only after SERVED
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        if (order.getStatus() != OrderStatus.SERVED) {</span>
+<span class="fc" id="L90">            throw new IllegalStateException(&quot;Order must be SERVED before payment.&quot;);</span>
+        }
+
+        // 3. Process payment using domain logic
+<span class="fc" id="L94">        order.processPayment(method);</span>
+
+        // 4. Save updated order
+<span class="fc" id="L97">        orders.save(order);</span>
+
+        // 5. Store the payment record
+<span class="fc" id="L100">        Payment p = order.getPayment();</span>
+<span class="fc" id="L101">        payments.save(p);</span>
+
+        // 6. Audit log
+<span class="fc" id="L104">        audits.append(new RestaurantAuditEntry(</span>
+<span class="fc" id="L105">                actor.id(),</span>
+<span class="fc" id="L106">                actor.getClass().getSimpleName(),</span>
+                &quot;COMPLETE_PAYMENT&quot;,
+                &quot;Order&quot;,
+                orderId,
+<span class="fc" id="L110">                &quot;Completed payment using &quot; + method + &quot; for amount $&quot; + p.getAmount(),</span>
+<span class="fc" id="L111">                audits.tailHash()</span>
+        ));
+
+<span class="fc" id="L114">        return p;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * &lt;p&gt;
+     * This implementation:
+     * &lt;/p&gt;
+     * &lt;ul&gt;
+     *     &lt;li&gt;Checks permission to view payment details&lt;/li&gt;
+     *     &lt;li&gt;Retrieves the order and verifies its existence&lt;/li&gt;
+     *     &lt;li&gt;Ensures the order has an associated {@link Payment}&lt;/li&gt;
+     *     &lt;li&gt;Records an audit entry&lt;/li&gt;
+     *     &lt;li&gt;Returns the payment object&lt;/li&gt;
+     * &lt;/ul&gt;
+     */
+    @Override
+    public Payment getPaymentForOrder(StaffRole actor, String orderId) {
+
+        // Permission check
+<span class="fc" id="L135">        permissions.check(actor, &quot;view a payment&quot;);</span>
+
+<span class="fc" id="L137">        UUID id = UUID.fromString(orderId);</span>
+
+        // 1. Load the order
+<span class="fc" id="L140">        Order order = orders.findById(id)</span>
+<span class="fc" id="L141">                .orElseThrow(() -&gt;</span>
+<span class="nc" id="L142">                        new IllegalArgumentException(&quot;Order not found: &quot; + orderId)</span>
+                );
+
+        // 2. Ensure order actually HAS a payment
+<span class="fc" id="L146">        Payment payment = order.getPayment();</span>
+<span class="fc bfc" id="L147" title="All 2 branches covered.">        if (payment == null) {</span>
+<span class="fc" id="L148">            throw new IllegalStateException(&quot;Order &quot; + orderId + &quot; has not been paid yet.&quot;);</span>
+        }
+
+        // 3. Audit
+<span class="fc" id="L152">        audits.append(new RestaurantAuditEntry(</span>
+<span class="fc" id="L153">                actor.id(),</span>
+<span class="fc" id="L154">                actor.getClass().getSimpleName(),</span>
+                &quot;GET_PAYMENT_FOR_ORDER&quot;,
+                &quot;Payment&quot;,
+<span class="fc" id="L157">                payment.getTransactionId(),</span>
+                &quot;Retrieved payment for order &quot; + orderId,
+<span class="fc" id="L159">                audits.tailHash()</span>
+        ));
+
+        // 4. Return the payment
+<span class="fc" id="L163">        return payment;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

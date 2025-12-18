@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RestaurantApplication.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant</a> &gt; <span class="el_source">RestaurantApplication.java</span></div><h1>RestaurantApplication.java</h1><pre class="source lang-java linenums">package com.university.restaurant;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+/**
+ * Main entry point for the Restaurant Management System.
+ *
+ * This application follows Hexagonal Architecture (Ports &amp; Adapters):
+ * - Domain Layer: Pure business logic (Efua's work)
+ * - Application Layer: Use cases and ports (Alice's work)
+ * - Infrastructure Layer: Spring Boot, JPA, REST (Mahdis's work)
+ *
+ * @author Mahdis (Infrastructure Layer)
+ */
+@SpringBootApplication
+@EnableJpaRepositories(basePackages = &quot;com.university.restaurant.infrastructure.jpa&quot;)
+@EnableTransactionManagement
+<span class="nc" id="L21">public class RestaurantApplication {</span>
+
+    public static void main(String[] args) {
+<span class="nc" id="L24">        SpringApplication.run(RestaurantApplication.class, args);</span>
+
+<span class="nc" id="L26">        System.out.println(&quot;&quot;&quot;</span>
+            
+            ═══════════════════════════════════════════════════════════
+            🍽️  RESTAURANT MANAGEMENT SYSTEM STARTED SUCCESSFULLY 🍽️
+            ═══════════════════════════════════════════════════════════
+            
+            🌐 API Base URL: http://localhost:8080/api
+            
+            📚 Available Endpoints:
+               - Menu:         /api/menu
+               - Orders:       /api/orders
+               - Reservations: /api/reservations
+               - Inventory:    /api/inventory
+               - Payments:     /api/payments
+               - Analytics:    /api/analytics
+               - Staff:        /api/staff
+            
+            📊 Database: PostgreSQL (restaurant_db)
+            
+            ═══════════════════════════════════════════════════════════
+            &quot;&quot;&quot;);
+<span class="nc" id="L47">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

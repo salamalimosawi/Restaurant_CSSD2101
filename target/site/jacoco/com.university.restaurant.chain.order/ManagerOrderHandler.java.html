@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ManagerOrderHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.chain.order</a> &gt; <span class="el_source">ManagerOrderHandler.java</span></div><h1>ManagerOrderHandler.java</h1><pre class="source lang-java linenums">package com.university.restaurant.chain.order;
+
+import com.university.restaurant.model.staff.Manager;
+import com.university.restaurant.model.staff.StaffRole;
+
+/**
+ * &lt;p&gt;
+ * Permission handler in the Order Permission Chain responsible for authorizing
+ * order-related actions performed by users with the {@link Manager} role.
+ * Managers are granted full privileges to place orders, update order statuses,
+ * and retrieve order details.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This handler participates in the Chain of Responsibility pattern by checking
+ * whether the provided {@link StaffRole} is a {@link Manager}. If so, it allows
+ * the operation without restriction by performing no action inside
+ * {@link #handle(StaffRole, String)}.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * If the role is not a Manager, the chain continues to the next handler
+ * (typically {@link DenyOrderHandler}), which will make the final authorization
+ * decision.
+ * &lt;/p&gt;
+ */
+<span class="fc" id="L27">public class ManagerOrderHandler implements OrderPermissionHandler {</span>
+
+    /**
+     * Determines whether this handler applies to the given staff role.
+     * Returns {@code true} only when the role represents a {@link Manager}.
+     *
+     * @param role the staff role attempting the order-related operation
+     * @return {@code true} if the role is a Manager, otherwise {@code false}
+     */
+    @Override
+    public boolean canHandle(StaffRole role) {
+<span class="fc" id="L38">        return role instanceof Manager;</span>
+    }
+
+    /**
+     * Approves the requested action for managers. Since managers have unrestricted
+     * permissions for order operations, this method contains no logic and allows
+     * the request to proceed.
+     *
+     * @param role   the Manager performing the action
+     * @param action a textual description of the attempted order operation
+     */
+    @Override
+    public void handle(StaffRole role, String action) {
+        // Manager allowed → do nothing
+<span class="fc" id="L52">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InventoryJpaAdapter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.infrastructure.adapter</a> &gt; <span class="el_source">InventoryJpaAdapter.java</span></div><h1>InventoryJpaAdapter.java</h1><pre class="source lang-java linenums">package com.university.restaurant.infrastructure.adapter;
+
+import com.university.restaurant.infrastructure.adapter.mapper.InventoryMapper;
+import com.university.restaurant.infrastructure.jpa.InventoryJpaRepository;
+import com.university.restaurant.model.inventory.InventoryItem;
+import com.university.restaurant.model.inventory.StockStatus;
+import com.university.restaurant.repository.InventoryRepository;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+/**
+ * JPA Adapter implementing InventoryRepository port.
+ * Bridges Alice's InventoryRepository interface with Spring Data JPA.
+ *
+ * @author Mahdis (Infrastructure Layer)
+ */
+public class InventoryJpaAdapter implements InventoryRepository {
+
+    private final InventoryJpaRepository jpaRepo;
+    private final InventoryMapper mapper;
+
+<span class="nc" id="L25">    public InventoryJpaAdapter(InventoryJpaRepository jpaRepo, InventoryMapper mapper) {</span>
+<span class="nc" id="L26">        this.jpaRepo = jpaRepo;</span>
+<span class="nc" id="L27">        this.mapper = mapper;</span>
+<span class="nc" id="L28">    }</span>
+
+    @Override
+    public Optional&lt;InventoryItem&gt; findById(String id) {
+<span class="nc" id="L32">        return jpaRepo.findById(id)</span>
+<span class="nc" id="L33">                .map(mapper::toDomain);</span>
+    }
+
+    @Override
+    public Optional&lt;InventoryItem&gt; findByName(String name) {
+<span class="nc" id="L38">        return jpaRepo.findByNameIgnoreCase(name)</span>
+<span class="nc" id="L39">                .map(mapper::toDomain);</span>
+    }
+
+    @Override
+    public List&lt;InventoryItem&gt; findByStatus(StockStatus status) {
+        // Filter based on computed status
+<span class="nc" id="L45">        return jpaRepo.findAll().stream()</span>
+<span class="nc" id="L46">                .map(mapper::toDomain)</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">                .filter(item -&gt; item.getStatus() == status)</span>
+<span class="nc" id="L48">                .collect(Collectors.toList());</span>
+    }
+
+    @Override
+    public void save(InventoryItem item) {
+<span class="nc" id="L53">        jpaRepo.save(mapper.toEntity(item));</span>
+<span class="nc" id="L54">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

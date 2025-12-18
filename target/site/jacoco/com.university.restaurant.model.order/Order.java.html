@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Order.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.model.order</a> &gt; <span class="el_source">Order.java</span></div><h1>Order.java</h1><pre class="source lang-java linenums">package com.university.restaurant.model.order;
+
+import com.university.restaurant.model.payment.Payment;
+import com.university.restaurant.model.payment.PaymentMethod;
+import com.university.restaurant.model.menu.MenuItem;
+
+import java.time.*;
+import java.util.*;
+import java.util.List;
+
+public final class Order {
+    private final UUID id;
+    private final List&lt;MenuItem&gt; items;
+    private final int tableNumber;
+    private final LocalDateTime createdAt;
+    private OrderStatus status;
+    private Payment payment;
+    private String assignedWaiterId;
+
+<span class="fc" id="L20">    public Order(int tableNumber, String waiterId){</span>
+<span class="fc" id="L21">        this.id = UUID.randomUUID();</span>
+<span class="fc" id="L22">        this.items = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L23">        this.tableNumber = tableNumber;</span>
+<span class="fc" id="L24">        this.createdAt = LocalDateTime.now();</span>
+<span class="fc" id="L25">        this.status = OrderStatus.PENDING;</span>
+<span class="fc" id="L26">        this.assignedWaiterId = waiterId;</span>
+<span class="fc" id="L27">    }</span>
+
+    public void addItem(MenuItem item) {
+<span class="fc bfc" id="L30" title="All 2 branches covered.">        if (!item.isAvailable())</span>
+<span class="fc" id="L31">            throw new IllegalStateException(&quot;Item not available: &quot; + item.getName());</span>
+<span class="fc" id="L32">        items.add(item);</span>
+<span class="fc" id="L33">    }</span>
+
+    public double calculateTotal(){
+<span class="fc" id="L36">        return items.stream().mapToDouble(MenuItem::calculatePrice).sum();</span>
+    }
+
+    public void updateStatus(OrderStatus newStatus){
+<span class="fc" id="L40">        this.status = newStatus;</span>
+<span class="fc" id="L41">    }</span>
+
+    public void processPayment(PaymentMethod method){
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        if(status != OrderStatus.SERVED)</span>
+<span class="fc" id="L45">            throw new IllegalArgumentException(&quot;Order must be served before payment&quot;);</span>
+
+<span class="fc" id="L47">        this.payment = new Payment(method, calculateTotal());</span>
+<span class="fc" id="L48">        this.status = OrderStatus.PAID;</span>
+<span class="fc" id="L49">    }</span>
+
+    public boolean requiresKitchenPrep(){
+<span class="fc" id="L52">        return items.stream().anyMatch(MenuItem::requiresKitchenPrep);</span>
+    }
+
+    @Override
+    public String toString(){
+<span class="fc" id="L57">        return &quot;Order[%s | Table=%d | Items=%d | Total=$%.2f | Status=%s]&quot;</span>
+<span class="fc" id="L58">                .formatted(id.toString().substring(0, 8), tableNumber,</span>
+<span class="fc" id="L59">                        items.size(), calculateTotal(), status);</span>
+    }
+
+<span class="fc" id="L62">    public UUID getId(){ return id;}</span>
+<span class="fc" id="L63">    public OrderStatus getStatus(){ return status;}</span>
+<span class="fc" id="L64">    public int getTableNumber(){ return tableNumber;}</span>
+<span class="fc" id="L65">    public List&lt;MenuItem&gt; getItems(){ return List.copyOf(items);}</span>
+
+    public OffsetDateTime getCreatedAt() {
+<span class="fc" id="L68">        return createdAt.atOffset(ZoneOffset.UTC);</span>
+    }
+
+<span class="fc" id="L71">    public Payment getPayment(){ return payment; }</span>
+
+<span class="nc" id="L73">    public String getAssignedWaiterId() { return assignedWaiterId; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

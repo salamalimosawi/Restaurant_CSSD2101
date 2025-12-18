@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MenuItemEntity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.infrastructure.entity</a> &gt; <span class="el_source">MenuItemEntity.java</span></div><h1>MenuItemEntity.java</h1><pre class="source lang-java linenums">package com.university.restaurant.infrastructure.entity;
+
+import com.university.restaurant.model.menu.DietaryType;
+import com.university.restaurant.model.menu.MenuCategory;
+import jakarta.persistence.*;
+
+/**
+ * JPA Entity for MenuItem using SINGLE_TABLE inheritance strategy.
+ * All menu item types (Entree, Drink, Dessert, Combo) are stored in one table.
+ *
+ * @author Mahdis Baradaran
+ */
+@Entity
+@Table(name = &quot;menu_items&quot;)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = &quot;item_type&quot;, discriminatorType = DiscriminatorType.STRING)
+public abstract class MenuItemEntity {
+
+    @Id
+    @Column(name = &quot;id&quot;, nullable = false, length = 50)
+    private String id;
+
+    @Column(name = &quot;name&quot;, nullable = false, length = 100)
+    private String name;
+
+    @Column(name = &quot;description&quot;, length = 500)
+    private String description;
+
+    @Column(name = &quot;price&quot;, nullable = false)
+    private Double price;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = &quot;category&quot;, nullable = false, length = 20)
+    private MenuCategory category;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = &quot;dietary_type&quot;, nullable = false, length = 20)
+    private DietaryType dietaryType;
+
+<span class="nc" id="L40">    @Column(name = &quot;available&quot;, nullable = false)</span>
+<span class="nc" id="L41">    private Boolean available = true;</span>
+
+    // Default constructor for JPA
+<span class="nc" id="L44">    protected MenuItemEntity() {}</span>
+
+    // Constructor
+    protected MenuItemEntity(String id, String name, String description, Double price,
+<span class="nc" id="L48">                             MenuCategory category, DietaryType dietaryType) {</span>
+<span class="nc" id="L49">        this.id = id;</span>
+<span class="nc" id="L50">        this.name = name;</span>
+<span class="nc" id="L51">        this.description = description;</span>
+<span class="nc" id="L52">        this.price = price;</span>
+<span class="nc" id="L53">        this.category = category;</span>
+<span class="nc" id="L54">        this.dietaryType = dietaryType;</span>
+<span class="nc" id="L55">        this.available = true;</span>
+<span class="nc" id="L56">    }</span>
+
+    // Getters and Setters
+    public String getId() {
+<span class="nc" id="L60">        return id;</span>
+    }
+
+    public void setId(String id) {
+<span class="nc" id="L64">        this.id = id;</span>
+<span class="nc" id="L65">    }</span>
+
+    public String getName() {
+<span class="nc" id="L68">        return name;</span>
+    }
+
+    public void setName(String name) {
+<span class="nc" id="L72">        this.name = name;</span>
+<span class="nc" id="L73">    }</span>
+
+    public String getDescription() {
+<span class="nc" id="L76">        return description;</span>
+    }
+
+    public void setDescription(String description) {
+<span class="nc" id="L80">        this.description = description;</span>
+<span class="nc" id="L81">    }</span>
+
+    public Double getPrice() {
+<span class="nc" id="L84">        return price;</span>
+    }
+
+    public void setPrice(Double price) {
+<span class="nc" id="L88">        this.price = price;</span>
+<span class="nc" id="L89">    }</span>
+
+    public MenuCategory getCategory() {
+<span class="nc" id="L92">        return category;</span>
+    }
+
+    public void setCategory(MenuCategory category) {
+<span class="nc" id="L96">        this.category = category;</span>
+<span class="nc" id="L97">    }</span>
+
+    public DietaryType getDietaryType() {
+<span class="nc" id="L100">        return dietaryType;</span>
+    }
+
+    public void setDietaryType(DietaryType dietaryType) {
+<span class="nc" id="L104">        this.dietaryType = dietaryType;</span>
+<span class="nc" id="L105">    }</span>
+
+    public Boolean getAvailable() {
+<span class="nc" id="L108">        return available;</span>
+    }
+
+    public void setAvailable(Boolean available) {
+<span class="nc" id="L112">        this.available = available;</span>
+<span class="nc" id="L113">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

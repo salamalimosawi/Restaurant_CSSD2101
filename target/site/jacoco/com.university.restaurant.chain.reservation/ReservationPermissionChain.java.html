@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReservationPermissionChain.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.chain.reservation</a> &gt; <span class="el_source">ReservationPermissionChain.java</span></div><h1>ReservationPermissionChain.java</h1><pre class="source lang-java linenums">package com.university.restaurant.chain.reservation;
+
+import com.university.restaurant.model.staff.StaffRole;
+
+import java.util.List;
+
+/**
+ * &lt;p&gt;
+ * Implements the Chain of Responsibility pattern for reservation-related
+ * authorization. This chain determines whether a staff member has permission
+ * to perform a given reservation action (e.g., creating or canceling a reservation).
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The chain processes handlers in the following order:
+ * &lt;/p&gt;
+ * &lt;ol&gt;
+ *     &lt;li&gt;{@link ManagerReservationHandler} — Managers are fully authorized.&lt;/li&gt;
+ *     &lt;li&gt;{@link WaiterReservationHandler} — Waiters may manage reservations.&lt;/li&gt;
+ *     &lt;li&gt;{@link DenyReservationHandler} — Fallback that denies all other roles.&lt;/li&gt;
+ * &lt;/ol&gt;
+ *
+ * &lt;p&gt;
+ * Once a handler reports that it can handle the given role, its {@code handle()}
+ * method is invoked. Authorization success or failure is determined entirely by
+ * the handler.
+ * &lt;/p&gt;
+ */
+public class ReservationPermissionChain {
+
+    private final List&lt;ReservationPermissionHandler&gt; handlers;
+
+    /**
+     * Constructs the reservation permission chain using a fixed, ordered set of handlers.
+     * &lt;p&gt;
+     * The order is important: earlier handlers have higher authority and exclusive access
+     * to process matching roles before the request reaches the fallback deny handler.
+     * &lt;/p&gt;
+     */
+<span class="fc" id="L40">    public ReservationPermissionChain() {</span>
+<span class="fc" id="L41">        this.handlers = List.of(</span>
+                new ManagerReservationHandler(),
+                new WaiterReservationHandler(),
+                new DenyReservationHandler()  // fallback
+        );
+<span class="fc" id="L46">    }</span>
+
+    /**
+     * Evaluates whether a given staff role is permitted to perform a reservation action.
+     * &lt;p&gt;
+     * The method iterates through the handler list and finds the first handler whose
+     * {@code canHandle()} method returns {@code true}. That handler is then responsible
+     * for approving or rejecting the request via its {@code handle()} method.
+     * &lt;/p&gt;
+     *
+     * @param role   the staff member attempting the action
+     * @param action a descriptive label of the attempted operation
+     */
+    public void check(StaffRole role, String action) {
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">        for (ReservationPermissionHandler h : handlers) {</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">            if (h.canHandle(role)) {</span>
+<span class="fc" id="L62">                h.handle(role, action);</span>
+<span class="fc" id="L63">                return;</span>
+            }
+<span class="fc" id="L65">        }</span>
+<span class="nc" id="L66">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

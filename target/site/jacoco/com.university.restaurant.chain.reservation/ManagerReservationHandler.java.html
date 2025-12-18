@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ManagerReservationHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.chain.reservation</a> &gt; <span class="el_source">ManagerReservationHandler.java</span></div><h1>ManagerReservationHandler.java</h1><pre class="source lang-java linenums">package com.university.restaurant.chain.reservation;
+
+import com.university.restaurant.model.staff.Manager;
+import com.university.restaurant.model.staff.StaffRole;
+
+/**
+ * &lt;p&gt;
+ * A concrete handler in the Reservation Chain-of-Responsibility that authorizes
+ * reservation-related operations for {@link Manager} roles.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This handler grants permission by matching roles that are instances of
+ * {@code Manager}. When matched, the handler performs no action and simply
+ * allows the request to proceed.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * All reservation operations not handled by this class will fall through to the
+ * next handler in the chain — typically the default-deny handler.
+ * &lt;/p&gt;
+ */
+<span class="fc" id="L23">public class ManagerReservationHandler implements ReservationPermissionHandler {</span>
+
+    /**
+     * Determines whether this handler is responsible for processing the given role.
+     * &lt;p&gt;
+     * Returns {@code true} if and only if the role is a {@link Manager}, indicating
+     * that this handler should authorize the action.
+     * &lt;/p&gt;
+     *
+     * @param role the staff member attempting the reservation operation
+     * @return true when the actor is a Manager
+     */
+    @Override
+    public boolean canHandle(StaffRole role) {
+<span class="fc" id="L37">        return role instanceof Manager;</span>
+    }
+
+    /**
+     * Grants permission for the reservation action.
+     * &lt;p&gt;
+     * Because managers are fully authorized to manage reservations, this method
+     * intentionally performs no checks or side-effects — permission is granted by
+     * reaching this handler in the chain.
+     * &lt;/p&gt;
+     *
+     * @param role   the actor performing the action
+     * @param action a textual description of the attempted operation
+     */
+    @Override
+    public void handle(StaffRole role, String action) {
+        // Manager allowed → do nothing (authorization successful)
+<span class="fc" id="L54">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

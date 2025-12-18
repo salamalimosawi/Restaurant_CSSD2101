@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ManagerPaymentHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.chain.payment</a> &gt; <span class="el_source">ManagerPaymentHandler.java</span></div><h1>ManagerPaymentHandler.java</h1><pre class="source lang-java linenums">package com.university.restaurant.chain.payment;
+
+import com.university.restaurant.model.staff.Manager;
+import com.university.restaurant.model.staff.StaffRole;
+
+/**
+ * &lt;p&gt;
+ * Permission handler that authorizes payment-related actions for users
+ * with the {@link Manager} role. As part of the Payment Permission Chain,
+ * this handler is evaluated before the fallback denial handler.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * If the actor is a {@code Manager}, the chain stops here and permission
+ * is granted. The {@link #handle(StaffRole, String)} method performs no
+ * action because managers automatically have full access.
+ * &lt;/p&gt;
+ */
+<span class="fc" id="L19">public class ManagerPaymentHandler implements PaymentPermissionHandler {</span>
+
+    /**
+     * Determines whether this handler is responsible for processing
+     * the given role. This returns {@code true} only when the role
+     * is an instance of {@link Manager}.
+     *
+     * @param role the staff role attempting the payment action
+     * @return {@code true} if the role is a {@code Manager}; otherwise {@code false}
+     */
+    @Override
+    public boolean canHandle(StaffRole role) {
+<span class="fc" id="L31">        return role instanceof Manager;</span>
+    }
+
+    /**
+     * Grants permission for the specified payment-related action.
+     * Since managers are fully authorized, this method intentionally
+     * performs no operations and simply allows the chain to succeed.
+     *
+     * @param role   the actor performing the action
+     * @param action a human-readable description of the attempted operation
+     */
+    @Override
+    public void handle(StaffRole role, String action) {
+        // Manager always allowed
+<span class="fc" id="L45">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

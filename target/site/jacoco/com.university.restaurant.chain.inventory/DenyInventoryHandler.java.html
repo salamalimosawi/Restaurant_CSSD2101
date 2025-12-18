@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DenyInventoryHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.chain.inventory</a> &gt; <span class="el_source">DenyInventoryHandler.java</span></div><h1>DenyInventoryHandler.java</h1><pre class="source lang-java linenums">package com.university.restaurant.chain.inventory;
+
+import com.university.restaurant.model.staff.StaffRole;
+
+/**
+ * &lt;p&gt;
+ * Fallback handler in the inventory permission chain. This handler is designed
+ * to catch any {@link StaffRole} that is not explicitly handled by a previous
+ * permission handler in the chain.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * By returning {@code true} in {@link #canHandle(StaffRole)}, this handler
+ * always matches and therefore acts as the final link in the chain of
+ * responsibility. Its sole purpose is to deny access by throwing a
+ * {@link SecurityException}.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This ensures that any role lacking explicit permission to perform an
+ * inventory-related action (e.g., reduce stock, increase stock) will be
+ * rejected in a predictable and secure manner.
+ * &lt;/p&gt;
+ */
+<span class="fc" id="L25">public class DenyInventoryHandler implements InventoryPermissionHandler {</span>
+
+    /**
+     * Always returns {@code true}, making this handler the universal fallback
+     * for any staff role not already processed in the chain.
+     *
+     * @param role the staff role attempting to perform an action
+     * @return {@code true} for all roles, indicating this handler can handle them
+     */
+    @Override
+    public boolean canHandle(StaffRole role) {
+<span class="fc" id="L36">        return true; // fallback for all roles</span>
+    }
+
+    /**
+     * Always denies the action by throwing a {@link SecurityException}.
+     * This enforces the rule that only explicitly allowed roles may perform
+     * inventory operations.
+     *
+     * @param role   the staff role attempting the inventory operation
+     * @param action the textual description of the attempted action
+     *
+     * @throws SecurityException always thrown to deny access
+     */
+    @Override
+    public void handle(StaffRole role, String action) {
+<span class="fc" id="L51">        throw new SecurityException(</span>
+<span class="fc" id="L52">                role.getClass().getSimpleName() + &quot; is NOT allowed to &quot; + action</span>
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

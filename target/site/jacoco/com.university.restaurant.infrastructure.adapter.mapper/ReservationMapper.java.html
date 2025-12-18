@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReservationMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.infrastructure.adapter.mapper</a> &gt; <span class="el_source">ReservationMapper.java</span></div><h1>ReservationMapper.java</h1><pre class="source lang-java linenums">package com.university.restaurant.infrastructure.adapter.mapper;
+
+import com.university.restaurant.infrastructure.entity.CustomerEntity;
+import com.university.restaurant.infrastructure.entity.ReservationEntity;
+import com.university.restaurant.model.reservation.Customer;
+import com.university.restaurant.model.reservation.Reservation;
+import org.springframework.stereotype.Component;
+
+/**
+ * Mapper for converting between Reservation domain models and ReservationEntity JPA entities.
+ *
+ * @author Mahdis (Infrastructure Layer)
+ */
+@Component
+<span class="nc" id="L15">public class ReservationMapper {</span>
+
+    /**
+     * Convert domain Customer to embedded CustomerEntity.
+     */
+    public CustomerEntity toCustomerEntity(Customer domain) {
+<span class="nc" id="L21">        return new CustomerEntity(</span>
+<span class="nc" id="L22">                domain.getName(),</span>
+<span class="nc" id="L23">                domain.getPhone(),</span>
+<span class="nc" id="L24">                domain.getEmail()</span>
+        );
+    }
+
+    /**
+     * Convert domain Reservation to JPA entity.
+     */
+    public ReservationEntity toEntity(Reservation domain) {
+<span class="nc" id="L32">        CustomerEntity customerEntity = toCustomerEntity(domain.getCustomer());</span>
+
+<span class="nc" id="L34">        ReservationEntity entity = new ReservationEntity(</span>
+<span class="nc" id="L35">                domain.getId(),</span>
+                customerEntity,
+<span class="nc" id="L37">                domain.getReservationTime(),</span>
+<span class="nc" id="L38">                domain.getPartySize(),</span>
+<span class="nc" id="L39">                domain.getStatus()</span>
+        );
+
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        if (domain.getAssignedTable() &gt; 0) {</span>
+<span class="nc" id="L43">            entity.setAssignedTable(domain.getAssignedTable());</span>
+        }
+
+<span class="nc" id="L46">        return entity;</span>
+    }
+
+    /**
+     * Convert JPA entity to domain Reservation.
+     */
+    public Reservation toDomain(ReservationEntity entity) {
+<span class="nc" id="L53">        CustomerEntity custEntity = entity.getCustomer();</span>
+<span class="nc" id="L54">        Customer customer = new Customer(</span>
+<span class="nc" id="L55">                custEntity.getName(),</span>
+<span class="nc" id="L56">                custEntity.getPhone(),</span>
+<span class="nc" id="L57">                custEntity.getEmail()</span>
+        );
+
+        // Note: Domain Reservation generates UUID internally
+        // We can't reconstruct it with the exact same UUID from the entity
+<span class="nc" id="L62">        throw new UnsupportedOperationException(</span>
+                &quot;Cannot fully convert ReservationEntity to Reservation domain model. &quot; +
+                        &quot;Reservation domain class needs modification to support reconstruction.&quot;
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

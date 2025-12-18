@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WaiterPaymentHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.chain.payment</a> &gt; <span class="el_source">WaiterPaymentHandler.java</span></div><h1>WaiterPaymentHandler.java</h1><pre class="source lang-java linenums">package com.university.restaurant.chain.payment;
+
+import com.university.restaurant.model.staff.Waiter;
+import com.university.restaurant.model.staff.StaffRole;
+
+/**
+ * &lt;p&gt;
+ * Permission handler in the Payment Chain-of-Responsibility that grants payment
+ * permissions specifically to {@link Waiter} roles.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This handler's {@link #canHandle(StaffRole)} method returns {@code true}
+ * only when the actor is a {@code Waiter}. When selected by the chain,
+ * {@link #handle(StaffRole, String)} performs no operation, meaning the waiter
+ * is authorized to complete payment-related actions.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * If the actor is not a waiter, control passes to the next handler in the chain,
+ * eventually reaching the fallback {@code DenyPaymentHandler} if no authorized
+ * role is matched.
+ * &lt;/p&gt;
+ */
+<span class="fc" id="L25">public class WaiterPaymentHandler implements PaymentPermissionHandler {</span>
+
+    /**
+     * Determines whether this handler is responsible for processing permissions
+     * for the given role. This handler applies only to {@link Waiter} roles.
+     *
+     * @param role the role attempting to perform a payment operation
+     * @return true if the role is a Waiter, false otherwise
+     */
+    @Override
+    public boolean canHandle(StaffRole role) {
+<span class="fc" id="L36">        return role instanceof Waiter;</span>
+    }
+
+    /**
+     * Grants permission to the waiter for the requested action.
+     * &lt;p&gt;
+     * Since waiters are authorized to handle payment actions, this method
+     * intentionally performs no validation or exception throwing.
+     * &lt;/p&gt;
+     *
+     * @param role   the waiter performing the action
+     * @param action the description of the attempted action
+     */
+    @Override
+    public void handle(StaffRole role, String action) {
+        // Waiter allowed → no action required
+<span class="fc" id="L52">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

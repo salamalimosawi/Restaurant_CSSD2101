@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.infrastructure.controller</a> &gt; <span class="el_source">OrderController.java</span></div><h1>OrderController.java</h1><pre class="source lang-java linenums">package com.university.restaurant.infrastructure.controller;
+
+import com.university.restaurant.infrastructure.dto.DTOMapper;
+import com.university.restaurant.infrastructure.dto.OrderDTO;
+import com.university.restaurant.infrastructure.entity.OrderEntity;
+import com.university.restaurant.infrastructure.jpa.MenuJpaRepository;
+import com.university.restaurant.infrastructure.jpa.OrderJpaRepository;
+import com.university.restaurant.model.menu.MenuItem;
+import com.university.restaurant.model.order.OrderStatus;
+import com.university.restaurant.model.staff.Manager;
+import com.university.restaurant.model.staff.StaffRole;
+import com.university.restaurant.model.staff.Waiter;
+import com.university.restaurant.port.OrderServicePort;
+import com.university.restaurant.infrastructure.adapter.mapper.MenuItemMapper;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+/**
+ * REST Controller for Order operations.
+ * Handles all order-related HTTP requests.
+ *
+ * @author Mahdis (Infrastructure Layer)
+ */
+@RestController
+@RequestMapping(&quot;/orders&quot;)
+public class OrderController {
+
+    private final OrderServicePort orderService;
+    private final OrderJpaRepository orderRepo;
+    private final MenuJpaRepository menuRepo;
+    private final MenuItemMapper menuMapper;
+    private final DTOMapper dtoMapper;
+
+    public OrderController(OrderServicePort orderService,
+                           OrderJpaRepository orderRepo,
+                           MenuJpaRepository menuRepo,
+                           MenuItemMapper menuMapper,
+<span class="nc" id="L44">                           DTOMapper dtoMapper) {</span>
+<span class="nc" id="L45">        this.orderService = orderService;</span>
+<span class="nc" id="L46">        this.orderRepo = orderRepo;</span>
+<span class="nc" id="L47">        this.menuRepo = menuRepo;</span>
+<span class="nc" id="L48">        this.menuMapper = menuMapper;</span>
+<span class="nc" id="L49">        this.dtoMapper = dtoMapper;</span>
+<span class="nc" id="L50">    }</span>
+
+    /**
+     * GET /orders - Get all orders
+     */
+    @GetMapping
+    public ResponseEntity&lt;List&lt;OrderDTO&gt;&gt; getAllOrders() {
+<span class="nc" id="L57">        List&lt;OrderEntity&gt; entities = orderRepo.findAll();</span>
+<span class="nc" id="L58">        List&lt;OrderDTO&gt; dtos = entities.stream()</span>
+<span class="nc" id="L59">                .map(dtoMapper::toOrderDTO)</span>
+<span class="nc" id="L60">                .collect(Collectors.toList());</span>
+<span class="nc" id="L61">        return ResponseEntity.ok(dtos);</span>
+    }
+
+    /**
+     * GET /orders/{id} - Get order by ID
+     */
+    @GetMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;OrderDTO&gt; getOrderById(@PathVariable UUID id) {
+<span class="nc" id="L69">        return orderRepo.findById(id)</span>
+<span class="nc" id="L70">                .map(dtoMapper::toOrderDTO)</span>
+<span class="nc" id="L71">                .map(ResponseEntity::ok)</span>
+<span class="nc" id="L72">                .orElse(ResponseEntity.notFound().build());</span>
+    }
+
+    /**
+     * GET /orders/status/{status} - Get orders by status
+     */
+    @GetMapping(&quot;/status/{status}&quot;)
+    public ResponseEntity&lt;List&lt;OrderDTO&gt;&gt; getOrdersByStatus(@PathVariable OrderStatus status) {
+<span class="nc" id="L80">        List&lt;OrderEntity&gt; entities = orderRepo.findByStatus(status);</span>
+<span class="nc" id="L81">        List&lt;OrderDTO&gt; dtos = entities.stream()</span>
+<span class="nc" id="L82">                .map(dtoMapper::toOrderDTO)</span>
+<span class="nc" id="L83">                .collect(Collectors.toList());</span>
+<span class="nc" id="L84">        return ResponseEntity.ok(dtos);</span>
+    }
+
+    /**
+     * GET /orders/table/{tableNumber} - Get orders by table
+     */
+    @GetMapping(&quot;/table/{tableNumber}&quot;)
+    public ResponseEntity&lt;List&lt;OrderDTO&gt;&gt; getOrdersByTable(@PathVariable Integer tableNumber) {
+<span class="nc" id="L92">        List&lt;OrderEntity&gt; entities = orderRepo.findByTableNumber(tableNumber);</span>
+<span class="nc" id="L93">        List&lt;OrderDTO&gt; dtos = entities.stream()</span>
+<span class="nc" id="L94">                .map(dtoMapper::toOrderDTO)</span>
+<span class="nc" id="L95">                .collect(Collectors.toList());</span>
+<span class="nc" id="L96">        return ResponseEntity.ok(dtos);</span>
+    }
+
+    /**
+     * POST /orders - Place new order
+     * Request Body: {
+     *   &quot;staffId&quot;: &quot;w1&quot;,
+     *   &quot;staffName&quot;: &quot;Bob&quot;,
+     *   &quot;staffRole&quot;: &quot;WAITER&quot;,
+     *   &quot;tableId&quot;: &quot;5&quot;,
+     *   &quot;itemIds&quot;: [&quot;item1&quot;, &quot;item2&quot;]
+     * }
+     */
+    @PostMapping
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; placeOrder(@RequestBody Map&lt;String, Object&gt; request) {
+        try {
+            // Extract staff info
+<span class="nc" id="L113">            String staffId = (String) request.get(&quot;staffId&quot;);</span>
+<span class="nc" id="L114">            String staffName = (String) request.get(&quot;staffName&quot;);</span>
+<span class="nc" id="L115">            String roleStr = (String) request.get(&quot;staffRole&quot;);</span>
+
+<span class="nc" id="L117">            StaffRole staff = createStaffRole(staffId, staffName, roleStr);</span>
+
+<span class="nc" id="L119">            String tableId = (String) request.get(&quot;tableId&quot;);</span>
+
+            @SuppressWarnings(&quot;unchecked&quot;)
+<span class="nc" id="L122">            List&lt;String&gt; itemIds = (List&lt;String&gt;) request.get(&quot;itemIds&quot;);</span>
+
+            // Fetch menu items
+<span class="nc" id="L125">            List&lt;MenuItem&gt; items = itemIds.stream()</span>
+<span class="nc" id="L126">                    .map(id -&gt; menuRepo.findById(id)</span>
+<span class="nc" id="L127">                            .map(menuMapper::toDomain)</span>
+<span class="nc" id="L128">                            .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Menu item not found: &quot; + id)))</span>
+<span class="nc" id="L129">                    .collect(Collectors.toList());</span>
+
+            // Place order through service
+<span class="nc" id="L132">            orderService.placeOrder(staff, tableId, items);</span>
+
+<span class="nc" id="L134">            return ResponseEntity.status(HttpStatus.CREATED)</span>
+<span class="nc" id="L135">                    .body(Map.of(&quot;message&quot;, &quot;Order placed successfully&quot;));</span>
+<span class="nc" id="L136">        } catch (SecurityException e) {</span>
+<span class="nc" id="L137">            return ResponseEntity.status(HttpStatus.FORBIDDEN)</span>
+<span class="nc" id="L138">                    .body(Map.of(&quot;error&quot;, e.getMessage()));</span>
+<span class="nc" id="L139">        } catch (Exception e) {</span>
+<span class="nc" id="L140">            return ResponseEntity.status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L141">                    .body(Map.of(&quot;error&quot;, e.getMessage()));</span>
+        }
+    }
+
+    /**
+     * PUT /orders/{id}/status - Update order status
+     * Request Body: {
+     *   &quot;staffId&quot;: &quot;w1&quot;,
+     *   &quot;staffName&quot;: &quot;Bob&quot;,
+     *   &quot;staffRole&quot;: &quot;WAITER&quot;,
+     *   &quot;newStatus&quot;: &quot;SERVED&quot;
+     * }
+     */
+    @PutMapping(&quot;/{id}/status&quot;)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; updateOrderStatus(
+            @PathVariable UUID id,
+            @RequestBody Map&lt;String, Object&gt; request) {
+        try {
+<span class="nc" id="L159">            String staffId = (String) request.get(&quot;staffId&quot;);</span>
+<span class="nc" id="L160">            String staffName = (String) request.get(&quot;staffName&quot;);</span>
+<span class="nc" id="L161">            String roleStr = (String) request.get(&quot;staffRole&quot;);</span>
+
+<span class="nc" id="L163">            StaffRole staff = createStaffRole(staffId, staffName, roleStr);</span>
+
+<span class="nc" id="L165">            String newStatus = (String) request.get(&quot;newStatus&quot;);</span>
+
+<span class="nc" id="L167">            orderService.updateOrderStatus(staff, id.toString(), newStatus);</span>
+
+<span class="nc" id="L169">            return ResponseEntity.ok(Map.of(&quot;message&quot;, &quot;Order status updated successfully&quot;));</span>
+<span class="nc" id="L170">        } catch (SecurityException e) {</span>
+<span class="nc" id="L171">            return ResponseEntity.status(HttpStatus.FORBIDDEN)</span>
+<span class="nc" id="L172">                    .body(Map.of(&quot;error&quot;, e.getMessage()));</span>
+<span class="nc" id="L173">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L174">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L175">                    .body(Map.of(&quot;error&quot;, e.getMessage()));</span>
+<span class="nc" id="L176">        } catch (Exception e) {</span>
+<span class="nc" id="L177">            return ResponseEntity.status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L178">                    .body(Map.of(&quot;error&quot;, e.getMessage()));</span>
+        }
+    }
+
+    /**
+     * Helper method to create StaffRole based on role string
+     */
+    private StaffRole createStaffRole(String id, String name, String role) {
+<span class="nc bnc" id="L186" title="All 3 branches missed.">        return switch (role.toUpperCase()) {</span>
+<span class="nc" id="L187">            case &quot;MANAGER&quot; -&gt; new Manager(id, name);</span>
+<span class="nc" id="L188">            case &quot;WAITER&quot; -&gt; new Waiter(id, name);</span>
+<span class="nc" id="L189">            default -&gt; throw new IllegalArgumentException(&quot;Invalid staff role: &quot; + role);</span>
+        };
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

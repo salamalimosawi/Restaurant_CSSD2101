@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DenyMenuHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.chain.menu</a> &gt; <span class="el_source">DenyMenuHandler.java</span></div><h1>DenyMenuHandler.java</h1><pre class="source lang-java linenums">package com.university.restaurant.chain.menu;
+
+import com.university.restaurant.model.staff.StaffRole;
+
+/**
+ * &lt;p&gt;
+ * Fallback permission handler in the Menu Permission Chain. This handler is
+ * invoked when no previous handler has accepted responsibility for the given
+ * {@link StaffRole}. Its purpose is to deny permission for all menu-related
+ * operations such as adding menu items or updating prices.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The method {@link #canHandle(StaffRole)} always returns {@code true},
+ * guaranteeing that this handler will execute if reached. By throwing a
+ * {@link SecurityException} inside {@link #handle(StaffRole, String)}, it
+ * enforces a strict deny-by-default policy for menu management.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This ensures that only explicitly authorized roles (e.g., Manager)
+ * can manage the menu, while all other roles—including Waiters, Chefs,
+ * and external actors—are automatically rejected.
+ * &lt;/p&gt;
+ */
+<span class="fc" id="L26">public class DenyMenuHandler implements MenuPermissionHandler {</span>
+
+    /**
+     * Always returns {@code true}, allowing this handler to act as the final
+     * fallback in the permission chain.
+     *
+     * @param role the staff role attempting the menu operation
+     * @return {@code true} for any staff role
+     */
+    @Override
+    public boolean canHandle(StaffRole role) {
+<span class="fc" id="L37">        return true;  // fallback for all remaining roles</span>
+    }
+
+    /**
+     * Always denies the requested menu action by throwing a
+     * {@link SecurityException}. This enforces that only roles explicitly
+     * allowed earlier in the chain may perform menu operations.
+     *
+     * @param role   the staff role attempting the action
+     * @param action textual description of the attempted menu operation
+     *
+     * @throws SecurityException always thrown to deny access
+     */
+    @Override
+    public void handle(StaffRole role, String action) {
+<span class="fc" id="L52">        throw new SecurityException(</span>
+<span class="fc" id="L53">                role.getClass().getSimpleName() + &quot; is NOT allowed to &quot; + action</span>
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

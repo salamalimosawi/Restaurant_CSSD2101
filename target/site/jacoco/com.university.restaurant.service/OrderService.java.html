@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.service</a> &gt; <span class="el_source">OrderService.java</span></div><h1>OrderService.java</h1><pre class="source lang-java linenums">package com.university.restaurant.service;
+
+import com.university.restaurant.chain.order.OrderPermissionChain;
+import com.university.restaurant.model.menu.MenuItem;
+import com.university.restaurant.model.order.Order;
+import com.university.restaurant.model.order.OrderStatus;
+import com.university.restaurant.model.staff.StaffRole;
+import com.university.restaurant.port.OrderServicePort;
+import com.university.restaurant.repository.OrderRepository;
+import com.university.restaurant.repository.RestaurantAuditEntry;
+import com.university.restaurant.repository.RestaurantAuditLogRepository;
+
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * &lt;p&gt;
+ * Service layer implementation of the {@link OrderServicePort}. This class
+ * performs all business logic related to creating, modifying, and retrieving
+ * orders while enforcing domain rules and permission-based access control.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This service is part of the application layer under Hexagonal Architecture.
+ * It delegates persistence to {@link OrderRepository}, records audit logs
+ * via {@link RestaurantAuditLogRepository}, and enforces role-based security
+ * through {@link OrderPermissionChain}.
+ * &lt;/p&gt;
+ */
+public class OrderService implements OrderServicePort {
+
+    private final OrderRepository repo;
+    private final RestaurantAuditLogRepository audits;
+<span class="fc" id="L34">    private final OrderPermissionChain permissions = new OrderPermissionChain();</span>
+
+    /**
+     * Constructs a new {@code OrderService} with the required repositories.
+     *
+     * @param repo   the repository used to persist and retrieve orders
+     * @param audits the repository used to append audit log entries
+     */
+<span class="fc" id="L42">    public OrderService(OrderRepository repo, RestaurantAuditLogRepository audits) {</span>
+<span class="fc" id="L43">        this.repo = repo;</span>
+<span class="fc" id="L44">        this.audits = audits;</span>
+<span class="fc" id="L45">    }</span>
+
+    /**
+     * {@inheritDoc}
+     *
+     * &lt;p&gt;
+     * This implementation:
+     * &lt;ul&gt;
+     *     &lt;li&gt;Validates the actor's permissions&lt;/li&gt;
+     *     &lt;li&gt;Parses the table identifier&lt;/li&gt;
+     *     &lt;li&gt;Creates a new {@link Order}&lt;/li&gt;
+     *     &lt;li&gt;Adds all menu items to the order&lt;/li&gt;
+     *     &lt;li&gt;Saves the order to the repository&lt;/li&gt;
+     *     &lt;li&gt;Writes an audit log entry&lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;/p&gt;
+     */
+    @Override
+    public Order placeOrder(StaffRole actor, String tableId, List&lt;MenuItem&gt; items) {
+
+<span class="fc" id="L65">        permissions.check(actor, &quot;place an order&quot;);</span>
+
+<span class="fc" id="L67">        int tableNum = Integer.parseInt(tableId);</span>
+
+        // Create order
+<span class="fc" id="L70">        Order order = new Order(tableNum, actor.id());</span>
+
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        for (MenuItem item : items) {</span>
+<span class="fc" id="L73">            order.addItem(item);</span>
+<span class="fc" id="L74">        }</span>
+
+        // Save to repository
+<span class="fc" id="L77">        repo.save(order);</span>
+
+        // Audit entry
+<span class="fc" id="L80">        audits.append(new RestaurantAuditEntry(</span>
+<span class="fc" id="L81">                actor.id(),</span>
+<span class="fc" id="L82">                actor.getClass().getSimpleName(),</span>
+                &quot;PLACE_ORDER&quot;,
+                &quot;Order&quot;,
+<span class="fc" id="L85">                order.getId().toString(),</span>
+<span class="fc" id="L86">                &quot;Placed order with %d items&quot;.formatted(items.size()),</span>
+<span class="fc" id="L87">                audits.tailHash()</span>
+        ));
+
+<span class="fc" id="L90">        return order;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * &lt;p&gt;
+     * This method:
+     * &lt;ul&gt;
+     *     &lt;li&gt;Validates permissions&lt;/li&gt;
+     *     &lt;li&gt;Loads the order from persistent storage&lt;/li&gt;
+     *     &lt;li&gt;Converts the new status string into an {@link OrderStatus}&lt;/li&gt;
+     *     &lt;li&gt;Updates the order's status&lt;/li&gt;
+     *     &lt;li&gt;Persists the updated order&lt;/li&gt;
+     *     &lt;li&gt;Appends an audit log entry&lt;/li&gt;
+     * &lt;/ul&gt;
+     * &lt;/p&gt;
+     */
+    @Override
+    public void updateOrderStatus(StaffRole actor, String orderId, String newStatus) {
+
+<span class="fc" id="L111">        permissions.check(actor, &quot;update order status&quot;);</span>
+
+<span class="fc" id="L113">        UUID id = UUID.fromString(orderId);</span>
+
+<span class="fc" id="L115">        Order order = repo.findById(id)</span>
+<span class="fc" id="L116">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Order not found: &quot; + orderId));</span>
+
+<span class="fc" id="L118">        OrderStatus status = OrderStatus.valueOf(newStatus.toUpperCase());</span>
+
+<span class="fc" id="L120">        order.updateStatus(status);</span>
+
+<span class="fc" id="L122">        repo.save(order);</span>
+
+<span class="fc" id="L124">        audits.append(new RestaurantAuditEntry(</span>
+<span class="fc" id="L125">                actor.id(),</span>
+<span class="fc" id="L126">                actor.getClass().getSimpleName(),</span>
+                &quot;UPDATE_ORDER_STATUS&quot;,
+                &quot;Order&quot;,
+                orderId,
+                &quot;Status changed to &quot; + status,
+<span class="fc" id="L131">                audits.tailHash()</span>
+        ));
+<span class="fc" id="L133">    }</span>
+
+    /**
+     * {@inheritDoc}
+     *
+     * &lt;p&gt;
+     * Loads an order by ID from the repository. If the order does not exist,
+     * an {@link IllegalArgumentException} is thrown.
+     * &lt;/p&gt;
+     */
+    @Override
+    public Order getOrder(String orderId) {
+<span class="fc" id="L145">        UUID id = UUID.fromString(orderId);</span>
+
+<span class="fc" id="L147">        return repo.findById(id)</span>
+<span class="fc" id="L148">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Order not found: &quot; + orderId));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

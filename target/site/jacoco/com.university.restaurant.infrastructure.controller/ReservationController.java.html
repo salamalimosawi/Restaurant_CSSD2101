@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReservationController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.infrastructure.controller</a> &gt; <span class="el_source">ReservationController.java</span></div><h1>ReservationController.java</h1><pre class="source lang-java linenums">package com.university.restaurant.infrastructure.controller;
+
+import com.university.restaurant.infrastructure.dto.DTOMapper;
+import com.university.restaurant.infrastructure.dto.ReservationDTO;
+import com.university.restaurant.infrastructure.entity.ReservationEntity;
+import com.university.restaurant.infrastructure.jpa.ReservationJpaRepository;
+import com.university.restaurant.model.reservation.ReservationStatus;
+import com.university.restaurant.model.staff.Manager;
+import com.university.restaurant.model.staff.StaffRole;
+import com.university.restaurant.model.staff.Waiter;
+import com.university.restaurant.port.ReservationServicePort;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+/**
+ * REST Controller for Reservation operations.
+ * Handles all reservation-related HTTP requests.
+ *
+ * @author Mahdis (Infrastructure Layer)
+ */
+@RestController
+@RequestMapping(&quot;/reservations&quot;)
+public class ReservationController {
+
+    private final ReservationServicePort reservationService;
+    private final ReservationJpaRepository reservationRepo;
+    private final DTOMapper dtoMapper;
+
+    public ReservationController(ReservationServicePort reservationService,
+                                 ReservationJpaRepository reservationRepo,
+<span class="nc" id="L40">                                 DTOMapper dtoMapper) {</span>
+<span class="nc" id="L41">        this.reservationService = reservationService;</span>
+<span class="nc" id="L42">        this.reservationRepo = reservationRepo;</span>
+<span class="nc" id="L43">        this.dtoMapper = dtoMapper;</span>
+<span class="nc" id="L44">    }</span>
+
+    /**
+     * GET /reservations - Get all reservations
+     */
+    @GetMapping
+    public ResponseEntity&lt;List&lt;ReservationDTO&gt;&gt; getAllReservations() {
+<span class="nc" id="L51">        List&lt;ReservationEntity&gt; entities = reservationRepo.findAll();</span>
+<span class="nc" id="L52">        List&lt;ReservationDTO&gt; dtos = entities.stream()</span>
+<span class="nc" id="L53">                .map(dtoMapper::toReservationDTO)</span>
+<span class="nc" id="L54">                .collect(Collectors.toList());</span>
+<span class="nc" id="L55">        return ResponseEntity.ok(dtos);</span>
+    }
+
+    /**
+     * GET /reservations/{id} - Get reservation by ID
+     */
+    @GetMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;ReservationDTO&gt; getReservationById(@PathVariable UUID id) {
+<span class="nc" id="L63">        return reservationRepo.findById(id)</span>
+<span class="nc" id="L64">                .map(dtoMapper::toReservationDTO)</span>
+<span class="nc" id="L65">                .map(ResponseEntity::ok)</span>
+<span class="nc" id="L66">                .orElse(ResponseEntity.notFound().build());</span>
+    }
+
+    /**
+     * GET /reservations/active - Get active reservations
+     */
+    @GetMapping(&quot;/active&quot;)
+    public ResponseEntity&lt;List&lt;ReservationDTO&gt;&gt; getActiveReservations() {
+<span class="nc" id="L74">        List&lt;ReservationEntity&gt; entities = reservationRepo.findActiveReservations();</span>
+<span class="nc" id="L75">        List&lt;ReservationDTO&gt; dtos = entities.stream()</span>
+<span class="nc" id="L76">                .map(dtoMapper::toReservationDTO)</span>
+<span class="nc" id="L77">                .collect(Collectors.toList());</span>
+<span class="nc" id="L78">        return ResponseEntity.ok(dtos);</span>
+    }
+
+    /**
+     * GET /reservations/date/{date} - Get reservations by date
+     */
+    @GetMapping(&quot;/date/{date}&quot;)
+    public ResponseEntity&lt;List&lt;ReservationDTO&gt;&gt; getReservationsByDate(
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+<span class="nc" id="L87">        List&lt;ReservationEntity&gt; entities = reservationRepo.findByDate(date);</span>
+<span class="nc" id="L88">        List&lt;ReservationDTO&gt; dtos = entities.stream()</span>
+<span class="nc" id="L89">                .map(dtoMapper::toReservationDTO)</span>
+<span class="nc" id="L90">                .collect(Collectors.toList());</span>
+<span class="nc" id="L91">        return ResponseEntity.ok(dtos);</span>
+    }
+
+    /**
+     * GET /reservations/status/{status} - Get reservations by status
+     */
+    @GetMapping(&quot;/status/{status}&quot;)
+    public ResponseEntity&lt;List&lt;ReservationDTO&gt;&gt; getReservationsByStatus(
+            @PathVariable ReservationStatus status) {
+<span class="nc" id="L100">        List&lt;ReservationEntity&gt; entities = reservationRepo.findByStatus(status);</span>
+<span class="nc" id="L101">        List&lt;ReservationDTO&gt; dtos = entities.stream()</span>
+<span class="nc" id="L102">                .map(dtoMapper::toReservationDTO)</span>
+<span class="nc" id="L103">                .collect(Collectors.toList());</span>
+<span class="nc" id="L104">        return ResponseEntity.ok(dtos);</span>
+    }
+
+    /**
+     * POST /reservations - Create new reservation
+     * Request Body: {
+     *   &quot;staffId&quot;: &quot;w1&quot;,
+     *   &quot;staffName&quot;: &quot;Bob&quot;,
+     *   &quot;staffRole&quot;: &quot;WAITER&quot;,
+     *   &quot;customerName&quot;: &quot;John Doe&quot;,
+     *   &quot;customerPhone&quot;: &quot;555-1234&quot;,
+     *   &quot;customerEmail&quot;: &quot;john@example.com&quot;,
+     *   &quot;partySize&quot;: 4,
+     *   &quot;reservationTime&quot;: &quot;2024-12-20T19:00:00&quot;
+     * }
+     */
+    @PostMapping
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; createReservation(@RequestBody Map&lt;String, Object&gt; request) {
+        try {
+<span class="nc" id="L123">            String staffId = (String) request.get(&quot;staffId&quot;);</span>
+<span class="nc" id="L124">            String staffName = (String) request.get(&quot;staffName&quot;);</span>
+<span class="nc" id="L125">            String roleStr = (String) request.get(&quot;staffRole&quot;);</span>
+
+<span class="nc" id="L127">            StaffRole staff = createStaffRole(staffId, staffName, roleStr);</span>
+
+<span class="nc" id="L129">            String customerName = (String) request.get(&quot;customerName&quot;);</span>
+<span class="nc" id="L130">            String customerPhone = (String) request.get(&quot;customerPhone&quot;);</span>
+<span class="nc" id="L131">            String customerEmail = (String) request.get(&quot;customerEmail&quot;);</span>
+<span class="nc" id="L132">            Integer partySize = ((Number) request.get(&quot;partySize&quot;)).intValue();</span>
+<span class="nc" id="L133">            LocalDateTime reservationTime = LocalDateTime.parse((String) request.get(&quot;reservationTime&quot;));</span>
+
+<span class="nc" id="L135">            reservationService.createReservation(staff, customerName, customerPhone,</span>
+<span class="nc" id="L136">                    customerEmail, partySize, reservationTime);</span>
+
+<span class="nc" id="L138">            return ResponseEntity.status(HttpStatus.CREATED)</span>
+<span class="nc" id="L139">                    .body(Map.of(&quot;message&quot;, &quot;Reservation created successfully&quot;));</span>
+<span class="nc" id="L140">        } catch (SecurityException e) {</span>
+<span class="nc" id="L141">            return ResponseEntity.status(HttpStatus.FORBIDDEN)</span>
+<span class="nc" id="L142">                    .body(Map.of(&quot;error&quot;, e.getMessage()));</span>
+<span class="nc" id="L143">        } catch (Exception e) {</span>
+<span class="nc" id="L144">            return ResponseEntity.status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L145">                    .body(Map.of(&quot;error&quot;, e.getMessage()));</span>
+        }
+    }
+
+    /**
+     * DELETE /reservations/{id} - Cancel reservation
+     * Request Body: { &quot;staffId&quot;: &quot;w1&quot;, &quot;staffName&quot;: &quot;Bob&quot;, &quot;staffRole&quot;: &quot;WAITER&quot; }
+     */
+    @DeleteMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; cancelReservation(
+            @PathVariable UUID id,
+            @RequestBody Map&lt;String, Object&gt; request) {
+        try {
+<span class="nc" id="L158">            String staffId = (String) request.get(&quot;staffId&quot;);</span>
+<span class="nc" id="L159">            String staffName = (String) request.get(&quot;staffName&quot;);</span>
+<span class="nc" id="L160">            String roleStr = (String) request.get(&quot;staffRole&quot;);</span>
+
+<span class="nc" id="L162">            StaffRole staff = createStaffRole(staffId, staffName, roleStr);</span>
+
+<span class="nc" id="L164">            boolean cancelled = reservationService.cancelReservation(staff, id.toString());</span>
+
+<span class="nc bnc" id="L166" title="All 2 branches missed.">            if (cancelled) {</span>
+<span class="nc" id="L167">                return ResponseEntity.ok(Map.of(&quot;message&quot;, &quot;Reservation cancelled successfully&quot;));</span>
+            } else {
+<span class="nc" id="L169">                return ResponseEntity.notFound().build();</span>
+            }
+<span class="nc" id="L171">        } catch (SecurityException e) {</span>
+<span class="nc" id="L172">            return ResponseEntity.status(HttpStatus.FORBIDDEN)</span>
+<span class="nc" id="L173">                    .body(Map.of(&quot;error&quot;, e.getMessage()));</span>
+<span class="nc" id="L174">        } catch (Exception e) {</span>
+<span class="nc" id="L175">            return ResponseEntity.status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L176">                    .body(Map.of(&quot;error&quot;, e.getMessage()));</span>
+        }
+    }
+
+    /**
+     * Helper method to create StaffRole
+     */
+    private StaffRole createStaffRole(String id, String name, String role) {
+<span class="nc bnc" id="L184" title="All 3 branches missed.">        return switch (role.toUpperCase()) {</span>
+<span class="nc" id="L185">            case &quot;MANAGER&quot; -&gt; new Manager(id, name);</span>
+<span class="nc" id="L186">            case &quot;WAITER&quot; -&gt; new Waiter(id, name);</span>
+<span class="nc" id="L187">            default -&gt; throw new IllegalArgumentException(&quot;Invalid staff role: &quot; + role);</span>
+        };
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

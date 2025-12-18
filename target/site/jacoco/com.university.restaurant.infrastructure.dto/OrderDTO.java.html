@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrderDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.infrastructure.dto</a> &gt; <span class="el_source">OrderDTO.java</span></div><h1>OrderDTO.java</h1><pre class="source lang-java linenums">package com.university.restaurant.infrastructure.dto;
+
+import com.university.restaurant.model.order.OrderStatus;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * DTO for Order responses.
+ *
+ * @author Mahdis (Infrastructure Layer)
+ */
+public class OrderDTO {
+    private UUID id;
+    private Integer tableNumber;
+    private String assignedWaiterId;
+    private OrderStatus status;
+    private OffsetDateTime createdAt;
+    private Double totalAmount;
+    private List&lt;OrderItemDTO&gt; items;
+
+    // Constructors
+<span class="nc" id="L23">    public OrderDTO() {}</span>
+
+    public OrderDTO(UUID id, Integer tableNumber, String assignedWaiterId,
+                    OrderStatus status, OffsetDateTime createdAt, Double totalAmount,
+<span class="nc" id="L27">                    List&lt;OrderItemDTO&gt; items) {</span>
+<span class="nc" id="L28">        this.id = id;</span>
+<span class="nc" id="L29">        this.tableNumber = tableNumber;</span>
+<span class="nc" id="L30">        this.assignedWaiterId = assignedWaiterId;</span>
+<span class="nc" id="L31">        this.status = status;</span>
+<span class="nc" id="L32">        this.createdAt = createdAt;</span>
+<span class="nc" id="L33">        this.totalAmount = totalAmount;</span>
+<span class="nc" id="L34">        this.items = items;</span>
+<span class="nc" id="L35">    }</span>
+
+    // Getters and Setters
+<span class="nc" id="L38">    public UUID getId() { return id; }</span>
+<span class="nc" id="L39">    public void setId(UUID id) { this.id = id; }</span>
+
+<span class="nc" id="L41">    public Integer getTableNumber() { return tableNumber; }</span>
+<span class="nc" id="L42">    public void setTableNumber(Integer tableNumber) { this.tableNumber = tableNumber; }</span>
+
+<span class="nc" id="L44">    public String getAssignedWaiterId() { return assignedWaiterId; }</span>
+<span class="nc" id="L45">    public void setAssignedWaiterId(String assignedWaiterId) { this.assignedWaiterId = assignedWaiterId; }</span>
+
+<span class="nc" id="L47">    public OrderStatus getStatus() { return status; }</span>
+<span class="nc" id="L48">    public void setStatus(OrderStatus status) { this.status = status; }</span>
+
+<span class="nc" id="L50">    public OffsetDateTime getCreatedAt() { return createdAt; }</span>
+<span class="nc" id="L51">    public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }</span>
+
+<span class="nc" id="L53">    public Double getTotalAmount() { return totalAmount; }</span>
+<span class="nc" id="L54">    public void setTotalAmount(Double totalAmount) { this.totalAmount = totalAmount; }</span>
+
+<span class="nc" id="L56">    public List&lt;OrderItemDTO&gt; getItems() { return items; }</span>
+<span class="nc" id="L57">    public void setItems(List&lt;OrderItemDTO&gt; items) { this.items = items; }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

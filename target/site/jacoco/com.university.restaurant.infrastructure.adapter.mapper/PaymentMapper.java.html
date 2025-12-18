@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PaymentMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.infrastructure.adapter.mapper</a> &gt; <span class="el_source">PaymentMapper.java</span></div><h1>PaymentMapper.java</h1><pre class="source lang-java linenums">package com.university.restaurant.infrastructure.adapter.mapper;
+
+import com.university.restaurant.infrastructure.entity.PaymentEntity;
+import com.university.restaurant.model.payment.Payment;
+import org.springframework.stereotype.Component;
+
+/**
+ * Mapper for converting between Payment domain models and PaymentEntity JPA entities.
+ *
+ * @author Mahdis (Infrastructure Layer)
+ */
+@Component
+<span class="nc" id="L13">public class PaymentMapper {</span>
+
+    /**
+     * Convert domain Payment to JPA entity.
+     */
+    public PaymentEntity toEntity(Payment domain) {
+<span class="nc" id="L19">        return new PaymentEntity(</span>
+<span class="nc" id="L20">                domain.getTransactionId(),</span>
+<span class="nc" id="L21">                domain.getMethod(),</span>
+<span class="nc" id="L22">                domain.getAmount(),</span>
+<span class="nc" id="L23">                domain.getTimestamp()</span>
+        );
+    }
+
+    /**
+     * Convert JPA entity to domain Payment.
+     */
+    public Payment toDomain(PaymentEntity entity) {
+<span class="nc" id="L31">        return new Payment(</span>
+<span class="nc" id="L32">                entity.getMethod(),</span>
+<span class="nc" id="L33">                entity.getAmount()</span>
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

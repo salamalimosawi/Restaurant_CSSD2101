@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ManagerMenuHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.chain.menu</a> &gt; <span class="el_source">ManagerMenuHandler.java</span></div><h1>ManagerMenuHandler.java</h1><pre class="source lang-java linenums">package com.university.restaurant.chain.menu;
+
+import com.university.restaurant.model.staff.Manager;
+import com.university.restaurant.model.staff.StaffRole;
+
+/**
+ * &lt;p&gt;
+ * Permission handler responsible for authorizing menu-management actions
+ * performed by staff members with the {@link Manager} role.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This handler is part of the Menu Permission Chain and implements the
+ * Chain of Responsibility pattern. It grants access exclusively to managers,
+ * who are the only staff members allowed to modify menu items (e.g., adding
+ * new items or updating prices).
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * If a role matches {@link Manager}, this handler approves the action by doing
+ * nothing in {@link #handle(StaffRole, String)}. Otherwise, the chain continues
+ * to the next handler (typically {@link DenyMenuHandler}).
+ * &lt;/p&gt;
+ */
+<span class="fc" id="L25">public class ManagerMenuHandler implements MenuPermissionHandler {</span>
+
+    /**
+     * Determines whether this handler is responsible for processing the given
+     * role. This method returns {@code true} only if the role is a
+     * {@link Manager}.
+     *
+     * @param role the staff role attempting the menu operation
+     * @return {@code true} if the role is a Manager, otherwise {@code false}
+     */
+    @Override
+    public boolean canHandle(StaffRole role) {
+<span class="fc" id="L37">        return role instanceof Manager;</span>
+    }
+
+    /**
+     * Approves the requested action for managers. Since managers are fully
+     * authorized for menu-management operations, this method intentionally
+     * contains no logic and performs no checks.
+     *
+     * @param role   the Manager performing the action
+     * @param action a human-readable description of the attempted action
+     */
+    @Override
+    public void handle(StaffRole role, String action) {
+        // Manager allowed → do nothing
+<span class="fc" id="L51">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

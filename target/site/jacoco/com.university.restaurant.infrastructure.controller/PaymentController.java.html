@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PaymentController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.infrastructure.controller</a> &gt; <span class="el_source">PaymentController.java</span></div><h1>PaymentController.java</h1><pre class="source lang-java linenums">package com.university.restaurant.infrastructure.controller;
+
+import com.university.restaurant.infrastructure.dto.DTOMapper;
+import com.university.restaurant.infrastructure.dto.PaymentDTO;
+import com.university.restaurant.infrastructure.entity.PaymentEntity;
+import com.university.restaurant.infrastructure.jpa.PaymentJpaRepository;
+import com.university.restaurant.model.payment.Payment;
+import com.university.restaurant.model.payment.PaymentMethod;
+import com.university.restaurant.model.staff.Manager;
+import com.university.restaurant.model.staff.StaffRole;
+import com.university.restaurant.model.staff.Waiter;
+import com.university.restaurant.port.PaymentServicePort;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+/**
+ * REST Controller for Payment operations.
+ * Handles all payment-related HTTP requests.
+ *
+ * @author Mahdis (Infrastructure Layer)
+ */
+@RestController
+@RequestMapping(&quot;/payments&quot;)
+public class PaymentController {
+
+    private final PaymentServicePort paymentService;
+    private final PaymentJpaRepository paymentRepo;
+    private final DTOMapper dtoMapper;
+
+    public PaymentController(PaymentServicePort paymentService,
+                             PaymentJpaRepository paymentRepo,
+<span class="nc" id="L40">                             DTOMapper dtoMapper) {</span>
+<span class="nc" id="L41">        this.paymentService = paymentService;</span>
+<span class="nc" id="L42">        this.paymentRepo = paymentRepo;</span>
+<span class="nc" id="L43">        this.dtoMapper = dtoMapper;</span>
+<span class="nc" id="L44">    }</span>
+
+    /**
+     * GET /payments - Get all payments
+     */
+    @GetMapping
+    public ResponseEntity&lt;List&lt;PaymentDTO&gt;&gt; getAllPayments() {
+<span class="nc" id="L51">        List&lt;PaymentEntity&gt; entities = paymentRepo.findAll();</span>
+<span class="nc" id="L52">        List&lt;PaymentDTO&gt; dtos = entities.stream()</span>
+<span class="nc" id="L53">                .map(dtoMapper::toPaymentDTO)</span>
+<span class="nc" id="L54">                .collect(Collectors.toList());</span>
+<span class="nc" id="L55">        return ResponseEntity.ok(dtos);</span>
+    }
+
+    /**
+     * GET /payments/{transactionId} - Get payment by transaction ID
+     */
+    @GetMapping(&quot;/{transactionId}&quot;)
+    public ResponseEntity&lt;PaymentDTO&gt; getPaymentByTransactionId(@PathVariable String transactionId) {
+<span class="nc" id="L63">        return paymentRepo.findById(transactionId)</span>
+<span class="nc" id="L64">                .map(dtoMapper::toPaymentDTO)</span>
+<span class="nc" id="L65">                .map(ResponseEntity::ok)</span>
+<span class="nc" id="L66">                .orElse(ResponseEntity.notFound().build());</span>
+    }
+
+    /**
+     * GET /payments/order/{orderId} - Get payment for an order
+     */
+    @GetMapping(&quot;/order/{orderId}&quot;)
+    public ResponseEntity&lt;PaymentDTO&gt; getPaymentForOrder(@PathVariable UUID orderId) {
+<span class="nc" id="L74">        return paymentRepo.findByOrderId(orderId)</span>
+<span class="nc" id="L75">                .map(dtoMapper::toPaymentDTO)</span>
+<span class="nc" id="L76">                .map(ResponseEntity::ok)</span>
+<span class="nc" id="L77">                .orElse(ResponseEntity.notFound().build());</span>
+    }
+
+    /**
+     * GET /payments/date/{date} - Get payments by date
+     */
+    @GetMapping(&quot;/date/{date}&quot;)
+    public ResponseEntity&lt;List&lt;PaymentDTO&gt;&gt; getPaymentsByDate(
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+<span class="nc" id="L86">        List&lt;PaymentEntity&gt; entities = paymentRepo.findByDate(date);</span>
+<span class="nc" id="L87">        List&lt;PaymentDTO&gt; dtos = entities.stream()</span>
+<span class="nc" id="L88">                .map(dtoMapper::toPaymentDTO)</span>
+<span class="nc" id="L89">                .collect(Collectors.toList());</span>
+<span class="nc" id="L90">        return ResponseEntity.ok(dtos);</span>
+    }
+
+    /**
+     * POST /payments/complete - Complete payment for an order
+     * Request Body: {
+     *   &quot;staffId&quot;: &quot;w1&quot;,
+     *   &quot;staffName&quot;: &quot;Bob&quot;,
+     *   &quot;staffRole&quot;: &quot;WAITER&quot;,
+     *   &quot;orderId&quot;: &quot;uuid-here&quot;,
+     *   &quot;paymentMethod&quot;: &quot;CREDIT_CARD&quot;
+     * }
+     */
+    @PostMapping(&quot;/complete&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; completePayment(@RequestBody Map&lt;String, Object&gt; request) {
+        try {
+<span class="nc" id="L106">            String staffId = (String) request.get(&quot;staffId&quot;);</span>
+<span class="nc" id="L107">            String staffName = (String) request.get(&quot;staffName&quot;);</span>
+<span class="nc" id="L108">            String roleStr = (String) request.get(&quot;staffRole&quot;);</span>
+
+<span class="nc" id="L110">            StaffRole staff = createStaffRole(staffId, staffName, roleStr);</span>
+
+<span class="nc" id="L112">            String orderId = (String) request.get(&quot;orderId&quot;);</span>
+<span class="nc" id="L113">            PaymentMethod method = PaymentMethod.valueOf((String) request.get(&quot;paymentMethod&quot;));</span>
+
+<span class="nc" id="L115">            Payment payment = paymentService.completePayment(staff, orderId, method);</span>
+
+<span class="nc" id="L117">            return ResponseEntity.status(HttpStatus.CREATED)</span>
+<span class="nc" id="L118">                    .body(Map.of(</span>
+                            &quot;message&quot;, &quot;Payment completed successfully&quot;,
+<span class="nc" id="L120">                            &quot;transactionId&quot;, payment.getTransactionId(),</span>
+<span class="nc" id="L121">                            &quot;amount&quot;, payment.getAmount()</span>
+                    ));
+<span class="nc" id="L123">        } catch (SecurityException e) {</span>
+<span class="nc" id="L124">            return ResponseEntity.status(HttpStatus.FORBIDDEN)</span>
+<span class="nc" id="L125">                    .body(Map.of(&quot;error&quot;, e.getMessage()));</span>
+<span class="nc" id="L126">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L127">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L128">                    .body(Map.of(&quot;error&quot;, e.getMessage()));</span>
+<span class="nc" id="L129">        } catch (IllegalStateException e) {</span>
+<span class="nc" id="L130">            return ResponseEntity.status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L131">                    .body(Map.of(&quot;error&quot;, e.getMessage()));</span>
+<span class="nc" id="L132">        } catch (Exception e) {</span>
+<span class="nc" id="L133">            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)</span>
+<span class="nc" id="L134">                    .body(Map.of(&quot;error&quot;, e.getMessage()));</span>
+        }
+    }
+
+    /**
+     * GET /payments/revenue/total - Get total revenue
+     */
+    @GetMapping(&quot;/revenue/total&quot;)
+    public ResponseEntity&lt;Map&lt;String, Double&gt;&gt; getTotalRevenue() {
+<span class="nc" id="L143">        Double totalRevenue = paymentRepo.findAll().stream()</span>
+<span class="nc" id="L144">                .mapToDouble(PaymentEntity::getAmount)</span>
+<span class="nc" id="L145">                .sum();</span>
+<span class="nc" id="L146">        return ResponseEntity.ok(Map.of(&quot;totalRevenue&quot;, totalRevenue));</span>
+    }
+
+    /**
+     * GET /payments/revenue/date/{date} - Get revenue for a specific date
+     */
+    @GetMapping(&quot;/revenue/date/{date}&quot;)
+    public ResponseEntity&lt;Map&lt;String, Double&gt;&gt; getRevenueByDate(
+            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+<span class="nc" id="L155">        Double revenue = paymentRepo.getTotalAmountForDate(date);</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">        return ResponseEntity.ok(Map.of(&quot;revenue&quot;, revenue != null ? revenue : 0.0));</span>
+    }
+
+    /**
+     * Helper method to create StaffRole
+     */
+    private StaffRole createStaffRole(String id, String name, String role) {
+<span class="nc bnc" id="L163" title="All 3 branches missed.">        return switch (role.toUpperCase()) {</span>
+<span class="nc" id="L164">            case &quot;MANAGER&quot; -&gt; new Manager(id, name);</span>
+<span class="nc" id="L165">            case &quot;WAITER&quot; -&gt; new Waiter(id, name);</span>
+<span class="nc" id="L166">            default -&gt; throw new IllegalArgumentException(&quot;Invalid staff role: &quot; + role);</span>
+        };
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

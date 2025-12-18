@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Entree.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.model.menu</a> &gt; <span class="el_source">Entree.java</span></div><h1>Entree.java</h1><pre class="source lang-java linenums">package com.university.restaurant.model.menu;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @author Efua Itoadon-Umane
+ *
+ * This represents the course of meal: ENTREE
+ * This class is for creating new entree objects to add to the menu. OR for placing orders
+ */
+
+public final class Entree extends MenuItem {
+    private final List&lt;String&gt; ingredients;
+    private final int prepTimeMinutes;
+
+    /**
+     *
+     * @param id
+     * @param name
+     * @param description
+     * @param price
+     * @param dietaryType
+     * @param ingredients a list of ingredients required to make the meal
+     * @param prepTimeMinutes how long will it take to be ready
+     */
+    public Entree(String id, String name, String description, double price, DietaryType dietaryType,
+           List&lt;String&gt; ingredients, int prepTimeMinutes){
+<span class="fc" id="L29">        super(id, name, description, price, MenuCategory.ENTREE, dietaryType);</span>
+
+<span class="fc" id="L31">        this.ingredients = new ArrayList&lt;&gt;(ingredients);</span>
+<span class="fc" id="L32">        this.prepTimeMinutes = prepTimeMinutes;</span>
+<span class="fc" id="L33">    }</span>
+    @Override
+<span class="fc" id="L35">    public double calculatePrice(){ return price;}</span>
+    @Override
+<span class="fc" id="L37">    public boolean requiresKitchenPrep(){ return true;}</span>
+<span class="fc" id="L38">    @Override public List&lt;String&gt; getRequiredIngredients(){ return List.copyOf(ingredients);}</span>
+
+<span class="fc" id="L40">    public int getPrepTimeMinutes(){ return prepTimeMinutes;}</span>
+
+    @Override
+    public MenuItem copyWithPrice(double newPrice) {
+<span class="fc" id="L44">        return new Entree(</span>
+                this.id,
+                this.name,
+                this.description,
+                newPrice,
+                this.dietaryType,
+<span class="fc" id="L50">                this.getRequiredIngredients(),</span>
+<span class="fc" id="L51">                this.getPrepTimeMinutes()</span>
+        );
+    }
+
+    public DietaryType getDietaryType() {
+<span class="nc" id="L56">        return dietaryType;</span>
+    }
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InventoryPermissionChain.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.chain.inventory</a> &gt; <span class="el_source">InventoryPermissionChain.java</span></div><h1>InventoryPermissionChain.java</h1><pre class="source lang-java linenums">package com.university.restaurant.chain.inventory;
+
+import com.university.restaurant.model.staff.StaffRole;
+
+import java.util.List;
+
+/**
+ * &lt;p&gt;
+ * Implements the Chain of Responsibility pattern for inventory-related
+ * permission checks. Each handler determines whether a particular
+ * {@link StaffRole} has the authority to perform a specified inventory action
+ * (e.g., reducing stock, increasing stock).
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The chain is evaluated sequentially. The first handler whose
+ * {@link InventoryPermissionHandler#canHandle(StaffRole)} method returns
+ * {@code true} becomes responsible for enforcing (or rejecting) the action.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The configured chain consists of:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *     &lt;li&gt;{@code ManagerInventoryHandler} — grants permission to managers&lt;/li&gt;
+ *     &lt;li&gt;{@code DenyInventoryHandler} — fallback that denies all other roles&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * This pattern cleanly separates decision-making and allows new permission
+ * rules or staff roles to be added without modifying existing code.
+ * &lt;/p&gt;
+ */
+public class InventoryPermissionChain {
+
+    private final List&lt;InventoryPermissionHandler&gt; handlers;
+
+    /**
+     * Initializes the chain with a predefined sequence of permission handlers.
+     * &lt;p&gt;
+     * Order matters: the first handler that reports it can handle the given role
+     * will be the one to execute its corresponding logic.
+     * &lt;/p&gt;
+     */
+<span class="fc" id="L45">    public InventoryPermissionChain() {</span>
+<span class="fc" id="L46">        this.handlers = List.of(</span>
+                new ManagerInventoryHandler(),
+                new DenyInventoryHandler() // fallback
+        );
+<span class="fc" id="L50">    }</span>
+
+    /**
+     * &lt;p&gt;
+     * Executes the permission check for the specified staff role and action.
+     * &lt;/p&gt;
+     *
+     * &lt;p&gt;
+     * The method iterates through the handler chain and delegates processing to
+     * the first handler whose {@code canHandle} method returns {@code true}.
+     * &lt;/p&gt;
+     *
+     * &lt;p&gt;
+     * If the handler denies permission (e.g., the fallback handler), a
+     * {@link SecurityException} will be thrown.
+     * &lt;/p&gt;
+     *
+     * @param role   the staff member attempting the inventory operation
+     * @param action the human-readable description of the attempted action
+     *
+     * @throws SecurityException if the action is not permitted for the role
+     */
+    public void check(StaffRole role, String action) {
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        for (InventoryPermissionHandler handler : handlers) {</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">            if (handler.canHandle(role)) {</span>
+<span class="fc" id="L75">                handler.handle(role, action);</span>
+<span class="fc" id="L76">                return;</span>
+            }
+<span class="fc" id="L78">        }</span>
+<span class="nc" id="L79">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

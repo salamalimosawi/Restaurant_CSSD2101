@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PaymentPermissionChain.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Restaurant Management System</a> &gt; <a href="index.source.html" class="el_package">com.university.restaurant.chain.payment</a> &gt; <span class="el_source">PaymentPermissionChain.java</span></div><h1>PaymentPermissionChain.java</h1><pre class="source lang-java linenums">package com.university.restaurant.chain.payment;
+
+import com.university.restaurant.model.staff.StaffRole;
+
+import java.util.List;
+
+/**
+ * &lt;p&gt;
+ * A Chain-of-Responsibility implementation for enforcing payment-related
+ * permissions in the restaurant system. The chain is composed of multiple
+ * {@link PaymentPermissionHandler} instances, each responsible for deciding
+ * whether a specific staff role is authorized to perform a payment operation.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The order of handlers defines the precedence of permissions:
+ * &lt;ul&gt;
+ *     &lt;li&gt;{@code ManagerPaymentHandler} – full access&lt;/li&gt;
+ *     &lt;li&gt;{@code WaiterPaymentHandler} – limited access&lt;/li&gt;
+ *     &lt;li&gt;{@code DenyPaymentHandler} – fallback denial for all other roles&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The chain stops at the first handler whose {@link PaymentPermissionHandler#canHandle(StaffRole)}
+ * method returns {@code true}. That handler then executes the permission logic
+ * through {@link PaymentPermissionHandler#handle(StaffRole, String)}.
+ * &lt;/p&gt;
+ */
+public class PaymentPermissionChain {
+
+    /** Ordered list of handlers representing permission levels (manager → waiter → deny). */
+    private final List&lt;PaymentPermissionHandler&gt; handlers;
+
+    /**
+     * Constructs the chain with its default handler sequence:
+     * manager, waiter, and finally the fallback denial handler.
+     */
+<span class="fc" id="L39">    public PaymentPermissionChain() {</span>
+<span class="fc" id="L40">        this.handlers = List.of(</span>
+                new ManagerPaymentHandler(),
+                new WaiterPaymentHandler(),
+                new DenyPaymentHandler() // fallback
+        );
+<span class="fc" id="L45">    }</span>
+
+    /**
+     * Executes the permission check for the given role and action. The first handler
+     * capable of processing the role is invoked. If no handler explicitly allows
+     * the action, the fallback handler will throw a {@link SecurityException}.
+     *
+     * @param role   the staff member attempting the action
+     * @param action a descriptive string of what action is being attempted
+     */
+    public void check(StaffRole role, String action) {
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">        for (PaymentPermissionHandler h : handlers) {</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">            if (h.canHandle(role)) {</span>
+<span class="fc" id="L58">                h.handle(role, action);</span>
+<span class="fc" id="L59">                return;</span>
+            }
+<span class="fc" id="L61">        }</span>
+<span class="nc" id="L62">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
