@@ -23,39 +23,38 @@ Architectural patterns used:
 - In-memory repositories for testing
 - Clear separation of concerns across layers
 
----
-
 ## Project Structure
 
+```
 src/
 ├── main/
-│ ├── java/com/university/restaurant
-│ │ ├── chain/ # Permission chains (analytics, inventory, menu, etc.)
-│ │ ├── infrastructure/ # Controllers, DTOs, JPA adapters, config
-│ │ ├── model/ # Domain models (order, menu, payment, reservation)
-│ │ ├── port/ # Service interfaces (ports)
-│ │ ├── repository/ # In-memory & repository abstractions
-│ │ ├── service/ # Core application services
-│ │ │ └── concurrent/ # Concurrent & async services
-│ │ └── RestaurantApplication.java
-│ └── resources/
-│ └── application.properties
+│   ├── java/
+│   │   └── com/university/restaurant/
+│   │       ├── chain/                 # Permission chains (analytics, inventory, menu, etc.)
+│   │       ├── infrastructure/        # Controllers, DTOs, JPA adapters, config
+│   │       ├── model/                 # Domain models (order, menu, payment, reservation)
+│   │       ├── port/                  # Service interfaces (ports)
+│   │       ├── repository/            # In-memory & repository abstractions
+│   │       ├── service/               # Core application services
+│   │       │   └── concurrent/        # Concurrent & async services
+│   │       └── RestaurantApplication.java
+│   │
+│   └── resources/
+│       └── application.properties
 │
 ├── test/
-│ └── java/com/university/restaurant
-│ ├── concurrent/ # Concurrency & deadlock tests
-│ ├── model/ # Unit tests for domain models
-│ ├── property/ # Property-based tests
-│ └── service/ # Service-layer tests
+│   └── java/
+│       └── com/university/restaurant/
+│           ├── concurrent/            # Concurrency & deadlock tests
+│           ├── model/                 # Unit tests for domain models
+│           ├── property/              # Property-based tests
+│           └── service/               # Service-layer tests
 │
-├── jmh/
-│ └── java/com/university/restaurant/benchmark
-│ └── JMH benchmark tests
-
-yaml
-Copy code
-
----
+└── jmh/
+    └── java/
+        └── com/university/restaurant/benchmark/
+            └── JMH benchmark tests
+```
 
 ## Technologies Used
 
