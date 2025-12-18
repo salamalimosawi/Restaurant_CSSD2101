@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: com.university.restaurant.concurrent.KitchenServiceTest
--------------------------------------------------------------------------------
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 152.901 s - in com.university.restaurant.concurrent.KitchenServiceTest
