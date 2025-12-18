@@ -151,8 +151,13 @@ mvn org.pitest:pitest-maven:mutationCoverage
 ### Key Features
 
 Thread-safe reservation handling
+
 Deadlock-safe table transfers
+
 Permission-based access control
+
 Asynchronous order and analytics processing
+
 Extensive automated testing
+
 High code coverage with mutation testing
