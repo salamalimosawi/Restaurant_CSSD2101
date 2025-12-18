@@ -124,29 +124,35 @@ Key reports include:
 
 ### Build and Verify
 
-```bash
+```
 mvn clean verify
-Run Tests
-bash
-Copy code
+```
+
+### Run Tests
+
+```
 mvn test
-Generate Coverage Report
-bash
-Copy code
+```
+
+### Generate Coverage Report
+
+```
 mvn jacoco:report
-Run Mutation Testing
-bash
-Copy code
+```
+
+### Run Mutation Testing
+
+```
 mvn org.pitest:pitest-maven:mutationCoverage
-Key Features
+```
+
+---
+
+### Key Features
+
 Thread-safe reservation handling
-
 Deadlock-safe table transfers
-
 Permission-based access control
-
 Asynchronous order and analytics processing
-
 Extensive automated testing
-
 High code coverage with mutation testing
